@@ -3,14 +3,14 @@ const jwt = require("jsonwebtoken");
 const secret = process.env.JWT_SECRET;
 
 function authMiddleware(req, res, next) {
-    let token = req.body.token || req.query.token || req.headers.authorization;
+    let token = req.body?.token || req.query?.token || req.headers.authorization;
 
     if (req.headers.authorization) {
         token = token.split(' ').pop().trim();
     }
 
     if (!token) {
-        return req;
+      return res.status(401).json({ message: 'You must be logged in to do that.' });
     }
 
     try {
