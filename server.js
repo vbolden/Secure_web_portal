@@ -14,12 +14,22 @@ require('./config/passport');
 
 const PORT = process.env.PORT;
 
+// DATABASE CONNECTION
+mongoose.connect(process.env.MONGO_URI)
+    .then(() => console.log('MongoDB connected'))
+    .catch(error => console.log(error));
+
 // MIDDLEWARE
+app.use(express.json());
+app.use(passport.initialize());
 
 // ROUTES
-// app.get('/test', (req, res) => {
-//     res.send("Testing..") <-- Test Route
-// })
+app.get('/', (req, res) => {
+    res.send("API running...")
+})
+
+app.use('/api/users', userRouter);
+app.use('/api/bookmarks', bookmarkRouter);
 
 // PORT
 app.listen(PORT, () => {
