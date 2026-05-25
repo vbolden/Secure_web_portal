@@ -2,6 +2,7 @@ const userRouter = require('express').Router();
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
 const secret = process.env.JWT_SECRET;
+const passport = require('passport');
 
 userRouter.post("/register", async (req, res) => {
     try {
@@ -63,7 +64,7 @@ userRouter.post("/login", async (req, res) => {
         res.json({
             token,
             user: {
-                _id: user.id,
+                _id: user._id,
                 email: user.email,
             }
         });
@@ -71,5 +72,35 @@ userRouter.post("/login", async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+userRouter.get(
+    '/auth/github',
+    passport.authenticate('github', { scope: ['user:email'] })
+);
+
+userRouter.get(
+    '/auth/github/callback',
+
+    passport.authenticate('github', {
+        failureRedirect: '/login',
+        session: false
+    }),
+
+    (req, res) => {
+
+        const payload = {
+            _id: req.user._id,
+            githubId: req.user.githubId,
+        };
+
+        const token = jwt.sign(
+            payload,
+            secret,
+            { expiresIn: '2h' }
+        );
+
+        res.redirect(`http://localhost:3000?token=${token}`);
+    }
+);
 
 module.exports = userRouter;
