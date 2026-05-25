@@ -28,6 +28,25 @@ router.get("/", authMiddleware, async (req, res) => {
 });
 
 // READ ONE
+router.get("/:id", authMiddleware, async (req, res) => {
+    try {
+        const bookmark = await Bookmark.findById({
+            _id: req.params.id,
+            user: req.user._id
+        });
+
+        if (!bookmark) {
+            return res.status(404).json({
+                message: "Bookmark not found."
+            });
+        }
+
+        res.json(bookmark);
+        
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // UPDATE
 
