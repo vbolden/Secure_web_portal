@@ -75,3 +75,28 @@ router.put("/:id", authMiddleware, async (req, res) => {
 });
 
 // DELETE
+router.delete("/:id", authMiddleware, async (req, res) => {
+    try {
+        const deletedBook = await Bookmark.findOneAndDelete(
+            {
+                _id: req.params.id,
+                user: req.user._id
+            }
+        );
+
+        if (!deletedBook) {
+            res.status(404).json({
+                message: "Bookmark not found."
+            });
+        }
+
+        res.json({
+            message: "Bookmark deleted successfully."
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+module.exports = router;
