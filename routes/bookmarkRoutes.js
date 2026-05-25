@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const { authenticate } = require('passport');
 const Bookmark = require('../models/Bookmark');
 
 // CREATE
@@ -42,12 +43,35 @@ router.get("/:id", authMiddleware, async (req, res) => {
         }
 
         res.json(bookmark);
-        
+
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 });
 
 // UPDATE
+router.put("/:id", authMiddleware, async (req, res) => {
+    try {
+        const updatedBookmark = await Bookmark.findOneAndUpdate(
+            {
+                _id: req.params.id,
+                user: req.user._id
+            },
+            req.body,
+            {
+                new: true
+            }
+        );
+
+        if (!updatedBookmark) {
+            return res.status(404).json({ message: "Bookmark not found." });
+        }
+
+        res.json(updatedBookmark);
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 // DELETE
