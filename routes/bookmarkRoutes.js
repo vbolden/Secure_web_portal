@@ -1,9 +1,9 @@
 const router = require('express').Router();
-const { authenticate } = require('passport');
+const authMiddleware = require('../utils/auth');
 const Bookmark = require('../models/Bookmark');
 
 // CREATE
-router.post("/", async (req, res) => {
+router.post("/", authMiddleware, async (req, res) => {
     try {
         const newBookmark = await Bookmark.create({
             ...req.body,
@@ -31,7 +31,7 @@ router.get("/", authMiddleware, async (req, res) => {
 // READ ONE
 router.get("/:id", authMiddleware, async (req, res) => {
     try {
-        const bookmark = await Bookmark.findById({
+        const bookmark = await Bookmark.findOne({
             _id: req.params.id,
             user: req.user._id
         });
@@ -77,15 +77,15 @@ router.put("/:id", authMiddleware, async (req, res) => {
 // DELETE
 router.delete("/:id", authMiddleware, async (req, res) => {
     try {
-        const deletedBook = await Bookmark.findOneAndDelete(
+        const deletedBookmark = await Bookmark.findOneAndDelete(
             {
                 _id: req.params.id,
                 user: req.user._id
             }
         );
 
-        if (!deletedBook) {
-            res.status(404).json({
+        if (!deletedBookmark) {
+            return res.status(404).json({
                 message: "Bookmark not found."
             });
         }
